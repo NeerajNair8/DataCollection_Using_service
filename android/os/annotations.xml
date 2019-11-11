@@ -1,0 +1,5 @@
+<root>
+    <item name='android.os.PowerManager PARTIAL_WAKE_LOCK'>
+        <annotation name='org.jetbrains.annotations.NotNull' />
+    </item>
+</root>

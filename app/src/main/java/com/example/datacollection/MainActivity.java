@@ -3,7 +3,12 @@ package com.example.datacollection;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -14,6 +19,8 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -51,17 +58,31 @@ public class MainActivity extends AppCompatActivity {
     File myFile = new File(folder, "user_details.txt");
 
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        t1 = (TextView) findViewById(R.id.displaytime);
-        t2 = (TextView) findViewById(R.id.displaylight);
-        t3 = (TextView) findViewById(R.id.prox);
-        t4 = (TextView) findViewById(R.id.acceldata);
-        t5 = (TextView) findViewById(R.id.extdata);
+        t1 =  findViewById(R.id.displaytime);
+        t2 =  findViewById(R.id.displaylight);
+        t3 =  findViewById(R.id.prox);
+        t4 =  findViewById(R.id.acceldata);
+        t5 =  findViewById(R.id.extdata);
         final Button b1 = (Button) findViewById(R.id.button1);
         final Button b2 = (Button) findViewById(R.id.button2);
+
+        final Intent myintend;
+
+        Intent intent;
+        final PendingIntent pendingIntent;
+
+
+        intent = new Intent(this,MyBroadcastReciever.class);
+
+        pendingIntent = PendingIntent.getBroadcast(this, 234324243, intent, 0);
+
+        myintend =new Intent(getApplicationContext(),Sensor_back.class);
 
 
         s1=(Switch)findViewById(R.id.switch1);
@@ -76,11 +97,13 @@ public class MainActivity extends AppCompatActivity {
                     b1.setVisibility(View.VISIBLE);
                     b2.setVisibility(View.VISIBLE);
                     x=0;
+                    startService(myintend);
 
                 }
                 else
                 {
                     x = 0;
+                    stopService(myintend);
                     b1.setVisibility(View.INVISIBLE);
                     b2.setVisibility(View.INVISIBLE);
                 }
@@ -108,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
 
         String time = simpleDateFormat.format(calander.getTime());
         t1.setText(time);
+        final long time2=System.currentTimeMillis();
 
         b1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,8 +139,8 @@ public class MainActivity extends AppCompatActivity {
 
                 if(x!=1) {
                     x = 1;
-                    Example a = new Example();
-                    a.start();
+                    //AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+                    //alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP,time2, 5000,pendingIntent);
                 }
                 z = 0;
                 b1.setVisibility(View.INVISIBLE);
@@ -132,8 +156,9 @@ public class MainActivity extends AppCompatActivity {
 
                if(x!=1)
                {
-                   Example a = new Example();
-                   a.start();
+                   //Example a = new Example();
+                   //a.start();
+
                    x=1;
                }
                z=1;
@@ -152,9 +177,19 @@ public class MainActivity extends AppCompatActivity {
         SensorManager sensorManager;
         Sensor sensor, sensor2, sensor3;
         SensorEvent event;
+        //PowerManager mgr;
+
+
+
+
 
 
         public void run() {
+
+
+            /*mgr = (PowerManager) getBaseContext().getSystemService(Context.POWER_SERVICE);
+            @SuppressLint("InvalidWakeLockTag") WakeLock wakeLock = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyWakeLock");
+            wakeLock.acquire();*/
 
             sensorManager = (SensorManager) getSystemService(Service.SENSOR_SERVICE);
 
@@ -168,6 +203,10 @@ public class MainActivity extends AppCompatActivity {
             sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
             sensorManager.registerListener(this, sensor2, SensorManager.SENSOR_DELAY_NORMAL);
             sensorManager.registerListener(this, sensor3, SensorManager.SENSOR_DELAY_NORMAL);
+
+
+
+
 
             while (x == 1) {
                 try {
@@ -196,7 +235,7 @@ public class MainActivity extends AppCompatActivity {
                     e1.printStackTrace();
                 }
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(120000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -245,6 +284,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+
+    }
+    @Override
+    public void onDestroy()
+    {
+        super.onDestroy();
+        System.out.println(" MainActivity Closed");
     }
 
 }

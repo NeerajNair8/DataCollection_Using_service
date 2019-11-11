@@ -1,0 +1,5 @@
+<root>
+    <item name='android.app.AlarmManager void set(int, long, android.app.PendingIntent)'>
+        <annotation name='java.lang.Deprecated' />
+    </item>
+</root>
